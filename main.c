@@ -1,39 +1,81 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
-typedef enum {  OK,
-                HELP,
-                ERROR
+typedef enum {  EOK,
+                EHELP,
+                EPARCOUNT,
+                EPARNOTNUM
              } TStatus;
 
-typedef enum {  TAN,
+typedef enum {  HELP,
+                TAN,
                 MESSURING,
                 EMESSIRING
              }  TOperation;
 
-typedef struct { int N;
-                 int M;
-                 int A;
-                 int B;
-                 int X;
+typedef struct {
+                 TStatus status;
+                 unsigned int N;
+                 unsigned int M;
+                 double A;
+                 double B;
+                 double X;
                } TValue;
 
 typedef struct { TStatus status;
-                 TOperation operation,
+                 TOperation operation;
                  TValue values;
                } TParams;
+
+TValue getTanValues(int argc, char *argv[])
+{
+    TValue values;
+
+    if (argc < 5)
+    {
+        values.status = EPARCOUNT;
+        return values;
+    }
+
+    values.status = EOK;
+    char *endptr;
+
+    values.A = strtod(argv[2], &endptr);
+
+    if (endptr == argv[2] || *endptr != '\0')
+    {
+        values.status = EPARNOTNUM;
+    }
+
+    values.N = strtol(argv[3], &endptr, 10);
+
+    if (endptr == argv[2] || *endptr != '\0')
+    {
+        values.status = EPARNOTNUM;
+    }
+
+    values.M = strtol(argv[4], &endptr, 10);
+
+    if (endptr == argv[2] || *endptr != '\0')
+    {
+        values.status = EPARNOTNUM;
+    }
+
+    return values;
+}
 
 TParams setArgs(int argc, char *argv[])
 {
     TParams params;
-    params.status = OK;
+    params.status = EOK;
 
     if (argc > 1)
     {
         if (!strcmp(argv[1], "--help"))
         {
-            params.status = HELP;
+            params.operation = HELP;
             return params;
         }
         else if (!strcmp(argv[1], "--tan"))
@@ -85,7 +127,7 @@ double cfrac_tan(double x, unsigned int n)
     return x / (1 - zlomek);
 }
 
-int main(int argc, int **argv)
+int main(int argc, char **argv)
 {
     printf("%e \n", tan(1.024));
     printf("%e \n", taylor_tan(1.024, 10));
