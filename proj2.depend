@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1416432699 source:c:\users\jan\skydrive\dokumenty\fit\izp\proj2\main.c
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+
