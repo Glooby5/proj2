@@ -11,8 +11,8 @@ typedef enum {  EOK,
 
 typedef enum {  HELP,
                 TAN,
-                MESSURING,
-                EMESSIRING
+                MEASURE,
+                EMEASURE
              }  TOperation;
 
 typedef struct {
@@ -51,16 +51,50 @@ TValue getTanValues(int argc, char *argv[])
 
     values.N = strtol(argv[3], &endptr, 10);
 
-    if (endptr == argv[2] || *endptr != '\0')
+    if (endptr == argv[3] || *endptr != '\0')
     {
         values.status = EPARNOTNUM;
     }
 
     values.M = strtol(argv[4], &endptr, 10);
 
+    if (endptr == argv[4] || *endptr != '\0')
+    {
+        values.status = EPARNOTNUM;
+    }
+
+    return values;
+}
+
+TValue getMeasureValues(int argc, char *argv[])
+{
+    TValue values;
+
+    if (argc < 3)
+    {
+        values.status = EPARCOUNT;
+        return values;
+    }
+
+    values.status = EOK;
+    values.B = -1;
+    char *endptr;
+
+    values.A = strtod(argv[2], &endptr);
+
     if (endptr == argv[2] || *endptr != '\0')
     {
         values.status = EPARNOTNUM;
+    }
+
+    if (argc > 3)
+    {
+        values.B = strtod(argv[3], &endptr);
+
+        if (endptr == argv[2] || *endptr != '\0')
+        {
+            values.status = EPARNOTNUM;
+        }
     }
 
     return values;
@@ -71,28 +105,38 @@ TParams setArgs(int argc, char *argv[])
     TParams params;
     params.status = EOK;
 
-    if (argc > 1)
+    if (argc < 2)
     {
-        if (!strcmp(argv[1], "--help"))
-        {
-            params.operation = HELP;
-            return params;
-        }
-        else if (!strcmp(argv[1], "--tan"))
-        {
-            params.operation = TAN;
-        }
-        else if (!strcmp(argv[1], "-m"))
-        {
-            //nacist A a B
-        }
-        else if (!strcmp(argv[1], "-c"))
-        {
-            //mereni se zadanou vyskou
-            //nnacis X a overit jestli dalsi argument je -m a nacist A a B
-        }
+        params.status = EPARCOUNT;
+        return params;
+    }
+
+    if (!strcmp(argv[1], "--help"))
+    {
+        params.operation = HELP;
+        return params;
+    }
+    else if (!strcmp(argv[1], "--tan"))
+    {
+        params.operation = TAN;
+        params.values = getTanValues(argc, argv);
+        params.status = params.values.status;
+    }
+    else if (!strcmp(argv[1], "-m"))
+    {
+        params.operation = MEASURE;
+        params.values = getMeasureValues(argc, argv);
+        params.status = params.values.status;
 
     }
+    else if (!strcmp(argv[1], "-c"))
+    {
+
+        //mereni se zadanou vyskou
+        //nnacis X a overit jestli dalsi argument je -m a nacist A a B
+    }
+
+    return params;
 }
 
 double const numerator_array[13] = {1, 1, 2, 17, 62, 1382, 21844, 929569, 6404582, 443861162, 18888466084, 113927491862, 58870668456604};
